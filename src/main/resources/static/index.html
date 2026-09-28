@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentorConnect - Alumni-Student Mentorship Matching Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">⚡</div>
+                <div class="brand-text">
+                    <h2>MentorConnect</h2>
+                    <span class="badge-tech">Spring Boot + MySQL</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="overview">
+                    <span class="icon">📊</span> Overview & Summary
+                </button>
+                <button class="nav-item" data-tab="matching">
+                    <span class="icon">🎯</span> Auto-Suggest & Match
+                </button>
+                <button class="nav-item" data-tab="alumni">
+                    <span class="icon">🎓</span> Alumni Mentors
+                </button>
+                <button class="nav-item" data-tab="students">
+                    <span class="icon">🎒</span> Students (Mentees)
+                </button>
+                <button class="nav-item" data-tab="pairs">
+                    <span class="icon">🤝</span> Mentorship Pairs
+                </button>
+                <button class="nav-item" data-tab="sessions">
+                    <span class="icon">📅</span> Mentoring Sessions
+                </button>
+                <button class="nav-item" data-tab="reports">
+                    <span class="icon">📈</span> Engagement Report
+                </button>
+                <button class="nav-item" data-tab="developer">
+                    <span class="icon">🛠️</span> Workbench & Postman
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="db-status">
+                    <span class="status-dot online"></span>
+                    <div>
+                        <div class="status-title">MySQL 8.0 Connected</div>
+                        <small>mentorconnect database</small>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="topbar">
+                <div class="page-title-box">
+                    <h1 id="page-title">Platform Overview</h1>
+                    <p id="page-subtitle">Real-time statistics & alumni mentorship engagement overview</p>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-outline" onclick="loadAllData()">
+                        <span class="icon">🔄</span> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('modal-add-alumni')">
+                        <span class="icon">+</span> Register Alumni
+                    </button>
+                    <button class="btn btn-secondary" onclick="openModal('modal-add-student')">
+                        <span class="icon">+</span> Add Student
+                    </button>
+                </div>
+            </header>
+
+            <!-- Notifications / Alert Box -->
+            <div id="alert-banner" class="alert-banner hidden">
+                <span id="alert-icon" class="alert-icon">⚠️</span>
+                <div id="alert-message" class="alert-message"></div>
+                <button class="alert-close" onclick="dismissAlert()">&times;</button>
+            </div>
+
+            <!-- TAB 1: OVERVIEW -->
+            <section id="tab-overview" class="tab-pane active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">🎓</div>
+                        <div class="metric-details">
+                            <span class="metric-label">Registered Alumni</span>
+                            <h3 id="stat-alumni" class="metric-val">--</h3>
+                            <small class="metric-sub">Active mentors</small>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">🎒</div>
+                        <div class="metric-details">
+                            <span class="metric-label">Enrolled Students</span>
+                            <h3 id="stat-students" class="metric-val">--</h3>
+                            <small class="metric-sub">Aspiring mentees</small>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">🤝</div>
+                        <div class="metric-details">
+                            <span class="metric-label">Active Mentorships</span>
+                            <h3 id="stat-active-pairs" class="metric-val">--</h3>
+                            <small class="metric-sub">Concurrent matches</small>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: rgba(236, 72, 153, 0.15); color: #f472b6;">📅</div>
+                        <div class="metric-details">
+                            <span class="metric-label">Completed Sessions</span>
+                            <h3 id="stat-completed-sessions" class="metric-val">--</h3>
+                            <small class="metric-sub">Tracked milestones</small>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8;">⏱️</div>
+                        <div class="metric-details">
+                            <span class="metric-label">Hours Mentored</span>
+                            <h3 id="stat-hours" class="metric-val">--</h3>
+                            <small class="metric-sub">Total engagement time</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Quick Match Launcher Card -->
+                    <div class="card glass-card">
+                        <div class="card-header">
+                            <div>
+                                <h3>🎯 Quick Mentorship Matching</h3>
+                                <p class="card-desc">Auto-suggest mentors ranked by shared interest tag overlap</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <label for="overview-student-select">Select Student Mentee:</label>
+                                <div class="inline-input-group">
+                                    <select id="overview-student-select" class="form-select">
+                                        <option value="">Loading students...</option>
+                                    </select>
+                                    <button class="btn btn-primary" onclick="launchMatchingFromOverview()">
+                                        Auto-Suggest Mentors →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Business Rules Info Box -->
+                    <div class="card glass-card info-card">
+                        <div class="card-header">
+                            <div>
+                                <h3>🛡️ Enforced Business Rules</h3>
+                                <p class="card-desc">Handled in Spring Boot Service Layer with custom exceptions</p>
+                            </div>
+                        </div>
+                        <div class="card-body rules-list">
+                            <div class="rule-item">
+                                <div class="rule-badge">Rule 1</div>
+                                <div class="rule-content">
+                                    <strong>Max Concurrent Mentee Limit:</strong>
+                                    <span>A mentor cannot be matched beyond their declared limit. Rejection returns HTTP 409 Conflict.</span>
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <div class="rule-badge">Rule 2</div>
+                                <div class="rule-content">
+                                    <strong>Tag Overlap Ranking:</strong>
+                                    <span>Match suggestions are ranked by the count of shared tags, highest first, with tie-breakers.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: AUTO-SUGGEST & MATCH -->
+            <section id="tab-matching" class="tab-pane">
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>🎯 Auto-Suggest Best-Matching Mentors</h3>
+                            <p class="card-desc">Computes tag intersection and filters mentors with available capacity</p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="matching-controls">
+                            <div class="form-group">
+                                <label for="matching-student-select">Select Registered Student:</label>
+                                <select id="matching-student-select" class="form-select" onchange="runAutoSuggest()">
+                                    <option value="">-- Choose a student --</option>
+                                </select>
+                            </div>
+                            <div id="student-interests-preview" class="interests-preview">
+                                <span class="label-tiny">Student Desired Tags:</span>
+                                <div id="student-tags-badges" class="tags-container">
+                                    <span class="tag-badge placeholder">Select a student above</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Suggestions Result Container -->
+                        <div id="suggestions-header" class="suggestions-header hidden">
+                            <h4>Ranked Mentor Suggestions (Highest Overlap First)</h4>
+                            <span id="suggestions-count" class="badge-info">0 mentors found</span>
+                        </div>
+
+                        <div id="suggestions-container" class="suggestions-grid">
+                            <div class="empty-state">
+                                <span>🔍</span>
+                                <p>Select a student above to see algorithmically ranked mentor suggestions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: ALUMNI MENTORS -->
+            <section id="tab-alumni" class="tab-pane">
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>🎓 Alumni Mentors Directory</h3>
+                            <p class="card-desc">Alumni registered with expertise tags and declared maximum mentee limits</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modal-add-alumni')">+ Add Alumni</button>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="data-table" id="alumni-table">
+                            <thead>
+                                <tr>
+                                    <th>Mentor</th>
+                                    <th>Current Role & Company</th>
+                                    <th>Expertise Tags</th>
+                                    <th>Max Limit</th>
+                                    <th>Active Mentees</th>
+                                    <th>Available Slots</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alumni-tbody">
+                                <tr><td colspan="7" class="text-center">Loading alumni data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: STUDENTS -->
+            <section id="tab-students" class="tab-pane">
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>🎒 Student Mentees Directory</h3>
+                            <p class="card-desc">Students requesting mentorship with specified interest tags</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modal-add-student')">+ Add Student</button>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="data-table" id="students-table">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Department</th>
+                                    <th>Batch Year</th>
+                                    <th>Desired Interest Tags</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-tbody">
+                                <tr><td colspan="5" class="text-center">Loading students data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: MENTORSHIP PAIRS -->
+            <section id="tab-pairs" class="tab-pane">
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>🤝 Mentorship Pairs</h3>
+                            <p class="card-desc">Active and concluded mentor-mentee engagements</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modal-add-pair')">+ Create Match</button>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="data-table" id="pairs-table">
+                            <thead>
+                                <tr>
+                                    <th>Pair ID</th>
+                                    <th>Alumni Mentor</th>
+                                    <th>Student Mentee</th>
+                                    <th>Status</th>
+                                    <th>Start Date</th>
+                                    <th>Total Sessions</th>
+                                    <th>Completed</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pairs-tbody">
+                                <tr><td colspan="8" class="text-center">Loading pairs data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: SESSIONS -->
+            <section id="tab-sessions" class="tab-pane">
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>📅 Mentoring Sessions Tracker</h3>
+                            <p class="card-desc">Track scheduled sessions, duration, agendas, and completion status</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openScheduleSessionModal()">+ Schedule Session</button>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="data-table" id="sessions-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Session Title</th>
+                                    <th>Mentor & Mentee</th>
+                                    <th>Scheduled Time</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Feedback / Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sessions-tbody">
+                                <tr><td colspan="8" class="text-center">Loading sessions data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: ENGAGEMENT REPORT -->
+            <section id="tab-reports" class="tab-pane">
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>📈 Mentorship Engagement Report (Feature 5)</h3>
+                            <p class="card-desc">Detailed tracking of mentoring sessions held per mentor pair</p>
+                        </div>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="data-table" id="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Pair ID</th>
+                                    <th>Mentor</th>
+                                    <th>Mentee</th>
+                                    <th>Status</th>
+                                    <th>Total Sessions</th>
+                                    <th>Completed</th>
+                                    <th>Scheduled</th>
+                                    <th>Cancelled</th>
+                                    <th>Total Hours</th>
+                                    <th>Last Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-tbody">
+                                <tr><td colspan="10" class="text-center">Loading engagement report...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 8: WORKBENCH & POSTMAN -->
+            <section id="tab-developer" class="tab-pane">
+                <div class="dashboard-grid">
+                    <!-- MySQL Workbench Guide -->
+                    <div class="card glass-card">
+                        <div class="card-header">
+                            <div>
+                                <h3>🐬 MySQL Workbench Setup & Verification</h3>
+                                <p class="card-desc">SQL scripts included directly in project repository</p>
+                            </div>
+                        </div>
+                        <div class="card-body dev-guide">
+                            <p>All database tables and queries can be inspected in <strong>MySQL Workbench</strong>:</p>
+                            <ol class="step-list">
+                                <li>Open <strong>MySQL Workbench</strong> and connect to <code>Local instance MySQL80</code> on port <code>3306</code>.</li>
+                                <li>Check the database <code>mentorconnect</code> in the left-hand Schemas panel.</li>
+                                <li>Run pre-written analytical scripts from the project's <code>mysql-scripts/</code> folder:
+                                    <ul>
+                                        <li><code>01_schema.sql</code>: Table DDL, Foreign Keys & Indexes</li>
+                                        <li><code>02_sample_data.sql</code>: Sample records & test data</li>
+                                        <li><code>03_queries_and_reports.sql</code>: Real-time queries for tag overlap & engagement reports</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                            <div class="code-preview">
+                                <label>Quick SQL Query to Run in Workbench:</label>
+                                <pre><code>USE mentorconnect;
+-- View Engagement Report per Mentor Pair
+SELECT p.id, a.name AS mentor, s.name AS mentee, 
+       COUNT(sess.id) AS total_sessions,
+       SUM(sess.status = 'COMPLETED') AS completed
+FROM mentorship_pairs p
+JOIN alumni a ON p.alumni_id = a.id
+JOIN students s ON p.student_id = s.id
+LEFT JOIN mentoring_sessions sess ON p.id = sess.mentorship_pair_id
+GROUP BY p.id, a.name, s.name;</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Postman Guide -->
+                    <div class="card glass-card">
+                        <div class="card-header">
+                            <div>
+                                <h3>🚀 Postman Collection & Testing</h3>
+                                <p class="card-desc">Ready-to-import v2.1 collection with 20+ test scenarios</p>
+                            </div>
+                        </div>
+                        <div class="card-body dev-guide">
+                            <p>A complete Postman test suite has been prepared in the <code>postman/</code> directory:</p>
+                            <ol class="step-list">
+                                <li>Open <strong>Postman</strong> → click <strong>Import</strong>.</li>
+                                <li>Select <code>postman/MentorConnect.postman_collection.json</code>.</li>
+                                <li>Select <code>postman/MentorConnect.postman_environment.json</code>.</li>
+                                <li>All endpoints are pre-configured with headers and sample bodies:
+                                    <ul>
+                                        <li><strong>Interest Tags</strong> (CRUD)</li>
+                                        <li><strong>Alumni Registration</strong> (with max mentees)</li>
+                                        <li><strong>Student Registration</strong> (with interest tags)</li>
+                                        <li><strong>Auto-Suggestions</strong> (ranked by overlap)</li>
+                                        <li><strong>Mentorship Match</strong> (with limit enforcement!)</li>
+                                        <li><strong>Session Scheduling & Completion</strong></li>
+                                        <li><strong>Engagement Reports</strong></li>
+                                        <li><strong>Edge Case & Validation Tests</strong></li>
+                                    </ul>
+                                </li>
+                            </ol>
+                            <div class="postman-tip">
+                                💡 <strong>Edge Case Test:</strong> Run the request <em>"EDGE CASE: Reject Match Beyond Max Concurrent Mentees Limit"</em> to see the Spring Boot service layer reject matching for mentor Priya Patel (limit 1 reached) with a clean HTTP 409 Conflict!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL: REGISTER ALUMNI -->
+    <div id="modal-add-alumni" class="modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>🎓 Register Alumni Mentor</h3>
+                <button class="modal-close" onclick="closeModal('modal-add-alumni')">&times;</button>
+            </div>
+            <form id="form-add-alumni" onsubmit="handleRegisterAlumni(event)">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="alumni-name" required class="form-input" placeholder="e.g. Maya Krishnan">
+                </div>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="alumni-email" required class="form-input" placeholder="e.g. maya@techcorp.com">
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" id="alumni-company" class="form-input" placeholder="e.g. Google, Uber">
+                    </div>
+                    <div class="form-group">
+                        <label>Job Title</label>
+                        <input type="text" id="alumni-title" class="form-input" placeholder="e.g. Senior Software Engineer">
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Graduation Year</label>
+                        <input type="number" id="alumni-year" class="form-input" placeholder="2018" value="2020">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Concurrent Mentees *</label>
+                        <input type="number" id="alumni-max-mentees" required min="1" max="10" class="form-input" value="2">
+                        <small class="helper-text">Enforced limit for active pairs</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Expertise Tags (comma-separated)</label>
+                    <input type="text" id="alumni-tags" class="form-input" placeholder="Java, Spring Boot, Microservices, Cloud Computing">
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="alumni-bio" class="form-textarea" placeholder="Brief summary of experience and mentoring interests"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-alumni')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Register Alumni</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTER STUDENT -->
+    <div id="modal-add-student" class="modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>🎒 Register Student Mentee</h3>
+                <button class="modal-close" onclick="closeModal('modal-add-student')">&times;</button>
+            </div>
+            <form id="form-add-student" onsubmit="handleRegisterStudent(event)">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="student-name" required class="form-input" placeholder="e.g. Divya Nair">
+                </div>
+                <div class="form-group">
+                    <label>College Email *</label>
+                    <input type="email" id="student-email" required class="form-input" placeholder="e.g. divya.nair@college.edu">
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Department / Major</label>
+                        <input type="text" id="student-dept" class="form-input" placeholder="Computer Science">
+                    </div>
+                    <div class="form-group">
+                        <label>Graduation Batch Year</label>
+                        <input type="number" id="student-batch" class="form-input" value="2027">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Desired Interest Tags (comma-separated)</label>
+                    <input type="text" id="student-tags" class="form-input" placeholder="Machine Learning, Data Science, Python">
+                    <small class="helper-text">Used to compute tag overlap against alumni expertise</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-student')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Register Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE MATCH -->
+    <div id="modal-add-pair" class="modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>🤝 Match Student & Alumni Mentor</h3>
+                <button class="modal-close" onclick="closeModal('modal-add-pair')">&times;</button>
+            </div>
+            <form id="form-add-pair" onsubmit="handleCreatePair(event)">
+                <div class="form-group">
+                    <label>Select Mentor *</label>
+                    <select id="pair-mentor-select" required class="form-select">
+                        <option value="">-- Choose Mentor --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Select Student *</label>
+                    <select id="pair-student-select" required class="form-select">
+                        <option value="">-- Choose Student --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mentorship Goals / Notes</label>
+                    <textarea id="pair-notes" class="form-textarea" placeholder="e.g. Distributed backend systems and mock interviews"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-pair')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Establish Match</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: SCHEDULE SESSION -->
+    <div id="modal-schedule-session" class="modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>📅 Schedule Mentoring Session</h3>
+                <button class="modal-close" onclick="closeModal('modal-schedule-session')">&times;</button>
+            </div>
+            <form id="form-schedule-session" onsubmit="handleScheduleSession(event)">
+                <div class="form-group">
+                    <label>Select Active Mentorship Pair *</label>
+                    <select id="session-pair-select" required class="form-select">
+                        <option value="">-- Choose Active Pair --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Session Title *</label>
+                    <input type="text" id="session-title" required class="form-input" placeholder="e.g. System Design Mock Interview">
+                </div>
+                <div class="form-group">
+                    <label>Agenda</label>
+                    <textarea id="session-agenda" class="form-textarea" placeholder="Topics to cover, preparation requirements, etc."></textarea>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Scheduled Date & Time *</label>
+                        <input type="datetime-local" id="session-time" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Duration (Minutes) *</label>
+                        <input type="number" id="session-duration" required min="15" step="15" value="60" class="form-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-schedule-session')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Schedule Session</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: COMPLETE SESSION -->
+    <div id="modal-complete-session" class="modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>✅ Complete Mentoring Session</h3>
+                <button class="modal-close" onclick="closeModal('modal-complete-session')">&times;</button>
+            </div>
+            <form id="form-complete-session" onsubmit="handleCompleteSession(event)">
+                <input type="hidden" id="complete-session-id">
+                <div class="form-group">
+                    <label>Session:</label>
+                    <p id="complete-session-title" class="static-val">Title</p>
+                </div>
+                <div class="form-group">
+                    <label>Mentor Feedback / Completion Notes *</label>
+                    <textarea id="complete-session-feedback" required class="form-textarea" placeholder="Detail the student's progress, takeaways, and recommended next steps"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-complete-session')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Mark Completed</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

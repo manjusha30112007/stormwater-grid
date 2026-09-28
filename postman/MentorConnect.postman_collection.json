@@ -1,0 +1,508 @@
+{
+  "info": {
+    "_postman_id": "mentorconnect-api-v1",
+    "name": "MentorConnect API - Alumni-Student Mentorship Matching",
+    "description": "Comprehensive Postman test suite for MentorConnect backend covering all 5 core features, business rules enforcement (max concurrent mentees limit, tag overlap ranking), and edge case validations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "studentId",
+      "value": "3",
+      "type": "string"
+    },
+    {
+      "key": "mentorId",
+      "value": "3",
+      "type": "string"
+    },
+    {
+      "key": "pairId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Interest Tags",
+      "item": [
+        {
+          "name": "Get All Interest Tags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tags"]
+            }
+          }
+        },
+        {
+          "name": "Create New Interest Tag",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kubernetes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tags"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Alumni Mentors",
+      "item": [
+        {
+          "name": "Get All Alumni Mentors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumni",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alumni"]
+            }
+          }
+        },
+        {
+          "name": "Register New Alumni Mentor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kavita Sundaram\",\n  \"email\": \"kavita.sundaram@netflix.com\",\n  \"company\": \"Netflix\",\n  \"jobTitle\": \"Senior Distributed Systems Engineer\",\n  \"graduationYear\": 2016,\n  \"bio\": \"Focused on edge computing, Spring Cloud, and resilient streaming services.\",\n  \"maxMentees\": 2,\n  \"tagNames\": [\n    \"Java\",\n    \"Spring Boot\",\n    \"Microservices\",\n    \"Cloud Computing\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/alumni",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alumni"]
+            }
+          }
+        },
+        {
+          "name": "Get Alumni by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumni/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alumni", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Students",
+      "item": [
+        {
+          "name": "Get All Students",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students"]
+            }
+          }
+        },
+        {
+          "name": "Register New Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rohan Mehta\",\n  \"email\": \"rohan.mehta@college.edu\",\n  \"department\": \"Information Technology\",\n  \"batchYear\": 2026,\n  \"interestTagNames\": [\n    \"Cloud Computing\",\n    \"AWS\",\n    \"DevOps\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students"]
+            }
+          }
+        },
+        {
+          "name": "Get Student by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Matching & Auto-Suggestions (Rule 2)",
+      "item": [
+        {
+          "name": "Auto-Suggest Mentors for Student (Ranked by Overlap)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/matching/suggestions/3",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "matching", "suggestions", "3"]
+            },
+            "description": "Student 3 (Vikram Singh) interests: Cloud Computing, AWS, DevOps. Mentors are returned ranked by highest tag overlap score first."
+          }
+        },
+        {
+          "name": "Auto-Suggest Mentors by Custom Tags",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\"Java\", \"Spring Boot\", \"Microservices\"]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/matching/suggestions-by-tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "matching", "suggestions-by-tags"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Mentorship Pairs & Limit Enforcement (Rule 1)",
+      "item": [
+        {
+          "name": "Match Student With Mentor (Normal Path)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alumniId\": 3,\n  \"studentId\": 3,\n  \"notes\": \"AWS architecture and cloud certifications guidance\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mentorship-pairs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mentorship-pairs"]
+            },
+            "description": "Matches Student 3 with Mentor 3 (Rohit Verma from Amazon). Rohit has maxMentees=2, current=0, so this succeeds with 201 Created."
+          }
+        },
+        {
+          "name": "EDGE CASE: Reject Match Beyond Max Concurrent Mentees Limit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alumniId\": 2,\n  \"studentId\": 4,\n  \"notes\": \"Attempting to match when mentor is at full capacity\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mentorship-pairs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mentorship-pairs"]
+            },
+            "description": "Mentor 2 (Priya Patel) has declared limit maxMentees = 1, and already has 1 active mentee (Ananya Iyer). This request MUST be rejected with HTTP 409 Conflict and message 'Mentor Priya Patel has reached their declared maximum concurrent mentee limit of 1'."
+          }
+        },
+        {
+          "name": "EDGE CASE: Reject Duplicate Active Match",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alumniId\": 1,\n  \"studentId\": 1,\n  \"notes\": \"Duplicate active match attempt\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mentorship-pairs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mentorship-pairs"]
+            },
+            "description": "Student 1 is already actively matched with Mentor 1. Must be rejected with HTTP 409 Conflict."
+          }
+        },
+        {
+          "name": "Get All Mentorship Pairs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mentorship-pairs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mentorship-pairs"]
+            }
+          }
+        },
+        {
+          "name": "Complete Mentorship Pair",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Mentorship concluded successfully. Mentee received job offer.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mentorship-pairs/2/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mentorship-pairs", "2", "complete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Mentoring Sessions (Feature 4)",
+      "item": [
+        {
+          "name": "Schedule Mentoring Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mentorshipPairId\": 1,\n  \"title\": \"Mock Technical Interview: Distributed Systems\",\n  \"agenda\": \"System design for URL shortener, caching strategies, and load balancing.\",\n  \"scheduledTime\": \"2026-10-05T17:30:00\",\n  \"durationMinutes\": 60\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions"]
+            }
+          }
+        },
+        {
+          "name": "Get All Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions"]
+            }
+          }
+        },
+        {
+          "name": "Get Sessions by Pair ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions?mentorshipPairId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions"],
+              "query": [
+                {
+                  "key": "mentorshipPairId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Complete Mentoring Session",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"feedback\": \"Candidate passed system design mock with flying colors. Great trade-off evaluation.\",\n  \"completedAt\": \"2026-09-28T16:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/3/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions", "3", "complete"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Mentoring Session",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Rescheduled due to university mid-term examination.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sessions/3/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sessions", "3", "cancel"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Engagement Reports (Feature 5)",
+      "item": [
+        {
+          "name": "Get Mentorship Engagement Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/engagement",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "engagement"]
+            },
+            "description": "Returns engagement metrics for each mentor-student pair: total sessions, completed sessions, scheduled sessions, total hours mentored, and last session date."
+          }
+        },
+        {
+          "name": "Get Platform Summary Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "summary"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Input Validation Edge Cases",
+      "item": [
+        {
+          "name": "EDGE CASE: Invalid Email Format",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bad Email User\",\n  \"email\": \"not-a-valid-email\",\n  \"maxMentees\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/alumni",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alumni"]
+            },
+            "description": "Fails @Email validation -> returns 400 Bad Request with fieldErrors."
+          }
+        },
+        {
+          "name": "EDGE CASE: Max Mentees Less Than 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Zero Slot Mentor\",\n  \"email\": \"zeroslot@example.com\",\n  \"maxMentees\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/alumni",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alumni"]
+            },
+            "description": "Fails @Min(1) validation -> returns 400 Bad Request."
+          }
+        },
+        {
+          "name": "EDGE CASE: Non-Existent Resource ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/alumni/9999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alumni", "9999"]
+            },
+            "description": "Non-existent ID -> returns 404 Not Found."
+          }
+        }
+      ]
+    }
+  ]
+}
